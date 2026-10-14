@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Halden Light — Architectural lighting studio</title>
+<meta name="description" content="Halden Light designs lighting for homes, restaurants and galleries — rooms that feel right after dark.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night:#17161C;
+  --plaster:#24222B;
+  --limestone:#ECE6DA;
+  --stone-dim:#A8A2AE;
+  --tungsten:#FFB547;
+  --ember:#E9783A;
+  --dusk:#4B5B8C;
+  --line:rgba(236,230,218,.14);
+  --lx:50%; --ly:45%;
+  --kelvin:2700;
+  --serif:"Gloock",Georgia,serif;
+  --sans:"Manrope",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--night);color:var(--limestone);font-family:var(--sans);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+img,svg{display:block}
+:focus-visible{outline:2px solid var(--tungsten);outline-offset:3px;border-radius:4px}
+.wrap{width:min(1160px,100% - 32px);margin-inline:auto}
+
+/* NAV */
+.nav{position:fixed;inset:0 0 auto;z-index:50;padding:18px 0;transition:background .4s,backdrop-filter .4s}
+.nav.solid{background:rgba(23,22,28,.78);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:20px}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-size:1.35rem;text-decoration:none;letter-spacing:.01em}
+.logo-dot{width:12px;height:12px;border-radius:50%;background:var(--tungsten);box-shadow:0 0 18px 4px rgba(255,181,71,.55)}
+.nav ul{display:flex;gap:28px;list-style:none}
+.nav ul a{text-decoration:none;color:var(--stone-dim);font-weight:500;font-size:.95rem;transition:color .2s}
+.nav ul a:hover{color:var(--limestone)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:999px;font:600 .95rem var(--sans);text-decoration:none;border:0;cursor:pointer;transition:transform .2s,box-shadow .3s,background .2s}
+.btn-light{background:var(--tungsten);color:#2A1A05;box-shadow:0 0 0 rgba(255,181,71,0)}
+.btn-light:hover{transform:translateY(-1px);box-shadow:0 8px 30px -6px rgba(255,181,71,.6)}
+.btn-ghost{background:transparent;color:var(--limestone);border:1px solid var(--line)}
+.btn-ghost:hover{border-color:var(--limestone)}
+.menu-btn{display:none;background:none;border:1px solid var(--line);color:var(--limestone);border-radius:999px;padding:8px 14px;font:600 .9rem var(--sans)}
+
+/* HERO: the room you light with your cursor */
+.hero{position:relative;height:100svh;min-height:640px;overflow:hidden;cursor:none;isolation:isolate}
+.hero.touch{cursor:auto}
+.room{position:absolute;inset:0;width:100%;height:100%}
+.room-dark{filter:brightness(.13) saturate(.4)}
+.room-lit{-webkit-mask:radial-gradient(circle var(--r,300px) at var(--lx) var(--ly),#000 0%,rgba(0,0,0,.85) 35%,rgba(0,0,0,.35) 65%,transparent 100%);mask:radial-gradient(circle var(--r,300px) at var(--lx) var(--ly),#000 0%,rgba(0,0,0,.85) 35%,rgba(0,0,0,.35) 65%,transparent 100%)}
+.glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle 420px at var(--lx) var(--ly),rgba(255,181,71,.16),transparent 70%);mix-blend-mode:screen}
+.bulb{position:absolute;left:var(--lx);top:var(--ly);width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#FFF3D6;box-shadow:0 0 12px 4px #FFD58A,0 0 60px 20px rgba(255,181,71,.45);pointer-events:none;z-index:3;transition:opacity .3s}
+.hero.touch .bulb{opacity:.85}
+.hero-copy{position:absolute;inset:auto 0 0;z-index:4;padding-bottom:clamp(40px,9vh,96px);pointer-events:none}
+.hero-copy .wrap{display:grid;grid-template-columns:1.4fr 1fr;gap:40px;align-items:end}
+.hero h1{font-family:var(--serif);font-weight:400;font-size:clamp(2.7rem,7.2vw,6.4rem);line-height:.98;letter-spacing:-.015em;max-width:11ch;text-wrap:balance}
+.hero h1 span{display:block;opacity:0;transform:translateY(24px);filter:blur(6px);animation:rise 1.2s cubic-bezier(.2,.7,.2,1) forwards}
+.hero h1 span:nth-child(2){animation-delay:.18s}
+.hero h1 span:nth-child(3){animation-delay:.36s;color:var(--tungsten)}
+.hero-side{pointer-events:auto;opacity:0;animation:fade 1.4s .9s forwards}
+.hero-side p{color:var(--stone-dim);max-width:34ch;margin-bottom:22px}
+.hero-side .row{display:flex;gap:12px;flex-wrap:wrap}
+.hint{position:absolute;z-index:4;top:50%;left:50%;transform:translate(-50%,-50%);font-size:.9rem;color:var(--stone-dim);pointer-events:none;letter-spacing:.02em;transition:opacity .8s}
+.hint.gone{opacity:0}
+@keyframes rise{to{opacity:1;transform:none;filter:none}}
+@keyframes fade{to{opacity:1}}
+
+/* SECTIONS */
+section{position:relative}
+.sec{padding:clamp(80px,12vw,150px) 0}
+.sec-head{display:grid;grid-template-columns:1fr 1.2fr;gap:40px;margin-bottom:56px;align-items:end}
+.sec-head h2{font-family:var(--serif);font-weight:400;font-size:clamp(2.1rem,4.6vw,3.6rem);line-height:1.05;letter-spacing:-.01em;text-wrap:balance}
+.sec-head p{color:var(--stone-dim);max-width:52ch}
+
+/* SCENE DIMMER */
+.dimmer{background:linear-gradient(180deg,var(--night),#1E1C25 40%,var(--night))}
+.stage{display:grid;grid-template-columns:1.55fr 1fr;gap:28px;align-items:stretch}
+.scene{position:relative;border-radius:22px;overflow:hidden;aspect-ratio:16/11;background:#0d0c10;border:1px solid var(--line)}
+.scene svg{width:100%;height:100%}
+.controls{background:var(--plaster);border:1px solid var(--line);border-radius:22px;padding:28px;display:flex;flex-direction:column;gap:26px}
+.controls h3{font-family:var(--serif);font-weight:400;font-size:1.6rem;line-height:1.15}
+.time-readout{font-family:var(--serif);font-size:3.2rem;line-height:1;color:var(--tungsten);font-variant-numeric:tabular-nums}
+.ctl label{display:flex;justify-content:space-between;font-size:.9rem;color:var(--stone-dim);margin-bottom:10px}
+.ctl output{color:var(--limestone);font-weight:600}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:28px;background:transparent;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:9px;background:linear-gradient(90deg,#6E86C9,#FFD9A0,#E9783A)}
+input[type=range]::-moz-range-track{height:6px;border-radius:9px;background:linear-gradient(90deg,#6E86C9,#FFD9A0,#E9783A)}
+input[type=range].lux::-webkit-slider-runnable-track{background:linear-gradient(90deg,#2a2832,var(--tungsten))}
+input[type=range].lux::-moz-range-track{background:linear-gradient(90deg,#2a2832,var(--tungsten))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;margin-top:-8px;border-radius:50%;background:#FFF6E4;border:3px solid var(--night);box-shadow:0 0 0 1px var(--tungsten),0 0 16px rgba(255,181,71,.6)}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#FFF6E4;border:3px solid var(--night);box-shadow:0 0 0 1px var(--tungsten)}
+.presets{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:transparent;border:1px solid var(--line);color:var(--limestone);border-radius:999px;padding:8px 14px;font:500 .88rem var(--sans);cursor:pointer;transition:all .2s}
+.chip:hover{border-color:var(--stone-dim)}
+.chip[aria-pressed=true]{background:var(--limestone);color:var(--night);border-color:var(--limestone)}
+.scene-note{font-size:.92rem;color:var(--stone-dim);min-height:3em}
+
+/* WORK */
+.work-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:22px}
+.proj{grid-column:span 6;position:relative;text-align:left;background:none;border:0;color:inherit;cursor:pointer;font:inherit}
+.proj:nth-child(1){grid-column:span 7}
+.proj:nth-child(2){grid-column:span 5;margin-top:90px}
+.proj:nth-child(3){grid-column:span 5}
+.proj:nth-child(4){grid-column:span 7;margin-top:60px}
+.proj-art{position:relative;aspect-ratio:4/3;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#0e0d12}
+.proj-art svg{width:100%;height:100%;transition:transform 1.2s cubic-bezier(.2,.7,.2,1),filter .6s}
+.proj:hover .proj-art svg,.proj:focus-visible .proj-art svg{transform:scale(1.04);filter:brightness(1.15)}
+.proj-meta{display:flex;justify-content:space-between;gap:16px;margin-top:16px}
+.proj-meta h3{font-family:var(--serif);font-weight:400;font-size:1.5rem;line-height:1.2}
+.proj-meta p{color:var(--stone-dim);font-size:.93rem}
+.proj-meta .where{color:var(--stone-dim);font-size:.9rem;white-space:nowrap;padding-top:6px}
+
+/* DIALOG */
+dialog{margin:auto;border:1px solid var(--line);border-radius:22px;background:var(--plaster);color:var(--limestone);width:min(880px,100% - 32px);max-height:calc(100svh - 40px);padding:0;overflow:auto}
+dialog::backdrop{background:rgba(10,9,13,.82);backdrop-filter:blur(6px)}
+dialog[open]{animation:pop .35s cubic-bezier(.2,.7,.2,1)}
+@keyframes pop{from{opacity:0;transform:translateY(16px) scale(.98)}}
+.dlg-art{aspect-ratio:16/8;background:#0e0d12}
+.dlg-art svg{width:100%;height:100%}
+.dlg-body{padding:30px 32px 34px;display:grid;grid-template-columns:1.3fr 1fr;gap:32px}
+.dlg-body h3{font-family:var(--serif);font-weight:400;font-size:2rem;line-height:1.1;margin-bottom:12px}
+.dlg-body p{color:var(--stone-dim)}
+.facts{list-style:none;display:grid;gap:12px;align-content:start}
+.facts li{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding-bottom:10px;font-size:.93rem}
+.facts span:first-child{color:var(--stone-dim)}
+.close{position:absolute;top:14px;right:14px;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:rgba(23,22,28,.7);color:var(--limestone);font-size:1.3rem;cursor:pointer}
+
+/* PROCESS */
+.steps{list-style:none;display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line)}
+.steps li{padding:30px 26px 10px 0;position:relative}
+.steps li+li{padding-left:26px;border-left:1px solid var(--line)}
+.step-n{font-family:var(--serif);font-size:2.6rem;color:var(--tungsten);line-height:1;margin-bottom:18px;opacity:.9}
+.steps h3{font-size:1.08rem;font-weight:700;margin-bottom:8px}
+.steps p{color:var(--stone-dim);font-size:.95rem}
+
+/* QUOTE */
+.quote{padding:clamp(70px,10vw,120px) 0;text-align:center}
+.quote blockquote{font-family:var(--serif);font-size:clamp(1.7rem,3.6vw,2.8rem);line-height:1.2;max-width:24ch;margin:0 auto 22px;text-wrap:balance}
+.quote cite{font-style:normal;color:var(--stone-dim);font-size:.95rem}
+
+/* CONTACT */
+.contact{background:radial-gradient(ellipse 60% 70% at 85% 30%,rgba(255,181,71,.10),transparent 70%),var(--night);border-top:1px solid var(--line)}
+.contact-grid{display:grid;grid-template-columns:1fr 1.15fr;gap:60px}
+.contact h2{font-family:var(--serif);font-weight:400;font-size:clamp(2.3rem,5vw,4rem);line-height:1.02;margin-bottom:22px}
+.contact .lede{color:var(--stone-dim);max-width:40ch;margin-bottom:30px}
+.contact dl{display:grid;gap:14px}
+.contact dt{color:var(--stone-dim);font-size:.85rem}
+.contact dd{font-size:1.05rem}
+form{display:grid;gap:18px;background:var(--plaster);border:1px solid var(--line);border-radius:22px;padding:30px}
+.field{display:grid;gap:7px}
+.field label{font-size:.9rem;font-weight:600}
+.field input,.field select,.field textarea{width:100%;background:var(--night);border:1px solid var(--line);color:var(--limestone);border-radius:12px;padding:13px 14px;font:inherit;font-size:.98rem;transition:border-color .2s,box-shadow .2s}
+.field textarea{min-height:120px;resize:vertical}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--tungsten);box-shadow:0 0 0 3px rgba(255,181,71,.18)}
+.field .err{color:#FF9B7A;font-size:.85rem;min-height:1.1em}
+.field.bad input,.field.bad textarea{border-color:#FF9B7A}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.space-pick{display:flex;flex-wrap:wrap;gap:8px}
+.sent{display:none;text-align:center;padding:40px 10px}
+.sent .orb{width:70px;height:70px;border-radius:50%;margin:0 auto 22px;background:radial-gradient(circle,#FFF3D6,var(--tungsten) 45%,transparent 72%);box-shadow:0 0 60px 20px rgba(255,181,71,.35);animation:breathe 3s ease-in-out infinite}
+.sent h3{font-family:var(--serif);font-weight:400;font-size:2rem;margin-bottom:8px}
+.sent p{color:var(--stone-dim)}
+@keyframes breathe{50%{transform:scale(1.08);box-shadow:0 0 80px 28px rgba(255,181,71,.45)}}
+
+footer{padding:34px 0;border-top:1px solid var(--line);color:var(--stone-dim);font-size:.9rem}
+footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+
+/* RESPONSIVE */
+@media (max-width:900px){
+  .nav ul,.nav .btn{display:none}
+  .menu-btn{display:inline-flex}
+  .nav.open ul{display:flex;flex-direction:column;position:absolute;top:100%;left:16px;right:16px;background:var(--plaster);border:1px solid var(--line);border-radius:16px;padding:18px;gap:14px}
+  .hero-copy .wrap,.sec-head,.stage,.contact-grid,.dlg-body{grid-template-columns:1fr}
+  .sec-head{gap:16px}
+  .work-grid{grid-template-columns:1fr}
+  .proj,.proj:nth-child(n){grid-column:auto;margin-top:0}
+  .steps{grid-template-columns:1fr 1fr}
+  .steps li:nth-child(3){padding-left:0;border-left:0}
+  .steps li:nth-child(n+3){border-top:1px solid var(--line)}
+}
+@media (max-width:560px){
+  body{font-size:16px}
+  .two{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr}
+  .steps li,.steps li+li{padding-left:0;border-left:0}
+  .steps li+li{border-top:1px solid var(--line)}
+  .hint{top:38%}
+  .controls,form{padding:22px}
+  .dlg-body{padding:24px 20px 28px}
+  .time-readout{font-size:2.6rem}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+</style>
+</head>
+<body>
+
+<!-- Reusable room drawing, rendered twice in the hero (dark + lit) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E9C8A0"/><stop offset="1" stop-color="#B98C63"/></linearGradient>
+    <linearGradient id="wallR" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#C79C72"/><stop offset="1" stop-color="#8E6748"/></linearGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7A5539"/><stop offset="1" stop-color="#3E2A1C"/></linearGradient>
+    <linearGradient id="arch" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2F3C63"/><stop offset="1" stop-color="#1B2240"/></linearGradient>
+    <radialGradient id="pend" cx=".5" cy=".3" r=".7"><stop offset="0" stop-color="#FFF4D8"/><stop offset=".4" stop-color="#FFC56B"/><stop offset="1" stop-color="#C2671F"/></radialGradient>
+    <radialGradient id="pool" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFD48A" stop-opacity=".75"/><stop offset="1" stop-color="#FFD48A" stop-opacity="0"/></radialGradient>
+    <linearGradient id="sofa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5C6E5A"/><stop offset="1" stop-color="#3A4838"/></linearGradient>
+    <symbol id="roomArt" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+      <rect width="1600" height="1000" fill="url(#wall)"/>
+      <polygon points="1220,0 1600,0 1600,1000 1220,760" fill="url(#wallR)"/>
+      <polygon points="0,760 1220,760 1600,1000 0,1000" fill="url(#floor)"/>
+      <g stroke="#2E1E13" stroke-opacity=".25" stroke-width="2">
+        <line x1="0" y1="820" x2="1290" y2="820"/><line x1="0" y1="890" x2="1400" y2="890"/><line x1="0" y1="960" x2="1530" y2="960"/>
+      </g>
+      <!-- arched window with night sky -->
+      <path d="M180 760 V330 a170 170 0 0 1 340 0 V760 Z" fill="url(#arch)"/>
+      <path d="M180 760 V330 a170 170 0 0 1 340 0 V760" fill="none" stroke="#6E4C33" stroke-width="14"/>
+      <line x1="350" y1="160" x2="350" y2="760" stroke="#6E4C33" stroke-width="8"/>
+      <circle cx="430" cy="300" r="26" fill="#F3E6C3" opacity=".9"/>
+      <g fill="#F3E6C3" opacity=".8"><circle cx="250" cy="260" r="2.5"/><circle cx="300" cy="410" r="2"/><circle cx="460" cy="460" r="2.5"/><circle cx="230" cy="520" r="2"/></g>
+      <!-- shelf with ceramics -->
+      <rect x="1290" y="330" width="250" height="12" fill="#5E402A" transform="skewY(14)"/>
+      <ellipse cx="1340" cy="640" rx="26" ry="42" fill="#D9CBB2"/><ellipse cx="1420" cy="650" rx="20" ry="58" fill="#3F4F6C"/>
+      <!-- artwork -->
+      <rect x="760" y="230" width="300" height="220" rx="4" fill="#2A2621"/>
+      <rect x="776" y="246" width="268" height="188" fill="#C9603A"/>
+      <circle cx="920" cy="340" r="62" fill="#F1D9A8"/>
+      <rect x="776" y="380" width="268" height="54" fill="#3F4F6C"/>
+      <!-- sofa -->
+      <rect x="640" y="600" width="560" height="170" rx="36" fill="url(#sofa)"/>
+      <rect x="610" y="640" width="70" height="150" rx="26" fill="#4A5A48"/>
+      <rect x="1160" y="640" width="70" height="150" rx="26" fill="#4A5A48"/>
+      <rect x="690" y="560" width="210" height="110" rx="30" fill="#6B7D68"/><rect x="930" y="560" width="210" height="110" rx="30" fill="#6B7D68"/>
+      <!-- plant -->
+      <path d="M540 770 h90 l-12 -110 h-66 Z" fill="#A9693F"/>
+      <g fill="#3D5A3A"><ellipse cx="560" cy="600" rx="22" ry="70" transform="rotate(-25 560 600)"/><ellipse cx="600" cy="580" rx="20" ry="80" transform="rotate(15 600 580)"/><ellipse cx="585" cy="540" rx="16" ry="70"/></g>
+      <!-- pendant -->
+      <line x1="920" y1="0" x2="920" y2="120" stroke="#2A2621" stroke-width="3"/>
+      <path d="M860 150 a60 34 0 0 1 120 0 Z" fill="#2A2621"/>
+      <ellipse cx="920" cy="152" rx="50" ry="10" fill="url(#pend)"/>
+      <ellipse cx="920" cy="770" rx="360" ry="70" fill="url(#pool)"/>
+      <!-- floor lamp -->
+      <line x1="1470" y1="980" x2="1470" y2="520" stroke="#2A2621" stroke-width="7"/>
+      <path d="M1420 520 l50 -90 l50 90 Z" fill="#E8D7B6"/>
+    </symbol>
+  </defs>
+</svg>
+
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a href="#top" class="logo" aria-label="Halden Light home"><span class="logo-dot"></span>Halden Light</a>
+    <ul id="navlinks">
+      <li><a href="#dimmer">Try a scene</a></li>
+      <li><a href="#work">Work</a></li>
+      <li><a href="#process">How we work</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <a href="#contact" class="btn btn-light">Book a site visit</a>
+    <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="navlinks">Menu</button>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero" id="hero" aria-label="Introduction">
+    <svg class="room room-dark" aria-hidden="true"><use href="#roomArt"/></svg>
+    <svg class="room room-lit" aria-hidden="true"><use href="#roomArt"/></svg>
+    <div class="glow" aria-hidden="true"></div>
+    <div class="bulb" aria-hidden="true"></div>
+    <p class="hint" id="hint">Move your light around the room</p>
+    <div class="hero-copy">
+      <div class="wrap">
+        <h1><span>Rooms are</span><span>designed by day.</span><span>We design the night.</span></h1>
+        <div class="hero-side">
+          <p>Halden Light plans lighting for homes, restaurants and galleries, so every room looks as good at 10&nbsp;pm as it did in the brochure.</p>
+          <div class="row">
+            <a href="#contact" class="btn btn-light">Book a site visit</a>
+            <a href="#work" class="btn btn-ghost">See our work</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec dimmer" id="dimmer">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>One room, five evenings.</h2>
+        <p>The same living room changes completely with colour temperature and brightness. Slide through the evening and watch what good lighting control does.</p>
+      </div>
+      <div class="stage">
+        <div class="scene" id="scene" role="img" aria-label="A living room whose lighting changes with the controls">
+          <svg viewBox="0 0 800 550" preserveAspectRatio="xMidYMid slice" id="sceneSvg">
+            <defs>
+              <radialGradient id="sPool" cx=".5" cy=".5" r=".5"><stop offset="0" id="sPoolC" stop-color="#FFD48A" stop-opacity=".8"/><stop offset="1" stop-color="#FFD48A" stop-opacity="0"/></radialGradient>
+              <radialGradient id="sLampG" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFC56B" stop-opacity=".7"/><stop offset="1" stop-color="#FFC56B" stop-opacity="0"/></radialGradient>
+              <radialGradient id="sWash" cx=".5" cy="0" r="1"><stop offset="0" id="sWashC" stop-color="#FFCF85" stop-opacity=".55"/><stop offset="1" stop-color="#FFCF85" stop-opacity="0"/></radialGradient>
+              <linearGradient id="sSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" id="sky1" stop-color="#E9906A"/><stop offset="1" id="sky2" stop-color="#F6C98F"/></linearGradient>
+            </defs>
+            <rect width="800" height="550" id="sWall" fill="#3A332E"/>
+            <polygon points="0,420 800,420 800,550 0,550" id="sFloor" fill="#2A211B"/>
+            <rect x="70" y="110" width="170" height="250" rx="4" fill="url(#sSky)"/>
+            <line x1="155" y1="110" x2="155" y2="360" stroke="#1d1814" stroke-width="5"/>
+            <rect x="70" y="110" width="170" height="250" rx="4" fill="none" stroke="#1d1814" stroke-width="9"/>
+            <rect x="0" y="0" width="800" height="300" fill="url(#sWash)" id="sWashRect"/>
+            <rect x="350" y="120" width="190" height="140" fill="#1E1A17"/><rect x="360" y="130" width="170" height="120" fill="#B85635" id="sArt"/><circle cx="445" cy="190" r="34" fill="#E9CB93" id="sArtSun"/>
+            <rect x="300" y="320" width="320" height="100" rx="24" fill="#3B4A39" id="sSofa"/>
+            <rect x="320" y="290" width="130" height="70" rx="20" fill="#475846" id="sCush1"/><rect x="470" y="290" width="130" height="70" rx="20" fill="#475846" id="sCush2"/>
+            <ellipse cx="450" cy="425" rx="250" ry="40" fill="url(#sPool)" id="sPoolE"/>
+            <line x1="680" y1="420" x2="680" y2="220" stroke="#16120f" stroke-width="5"/>
+            <path d="M650 222 l30 -50 l30 50 Z" id="sLampShade" fill="#E7D2AD"/>
+            <rect width="800" height="550" id="sDark" fill="#05040a" opacity=".2"/>
+            <circle cx="680" cy="230" r="150" fill="url(#sLampG)" id="sLampGlow" opacity="0" style="mix-blend-mode:screen"/>
+          </svg>
+        </div>
+        <div class="controls">
+          <div>
+            <div class="time-readout" id="timeOut">7:30 pm</div>
+            <p class="scene-note" id="sceneNote">Golden hour. Daylight is still doing most of the work, so the lamps stay low and warm.</p>
+          </div>
+          <div class="ctl">
+            <label for="time">Time of evening <output id="kOut">3000 K</output></label>
+            <input type="range" id="time" min="0" max="100" value="22" aria-describedby="sceneNote">
+          </div>
+          <div class="ctl">
+            <label for="lux">Brightness <output id="luxOut">60%</output></label>
+            <input type="range" class="lux" id="lux" min="5" max="100" value="60">
+          </div>
+          <div>
+            <p style="font-size:.9rem;color:var(--stone-dim);margin-bottom:10px">Or pick a scene</p>
+            <div class="presets" id="presets">
+              <button class="chip" data-t="5" data-l="35">Arriving home</button>
+              <button class="chip" data-t="45" data-l="85">Dinner for six</button>
+              <button class="chip" data-t="72" data-l="40">Film night</button>
+              <button class="chip" data-t="96" data-l="10">Last one up</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="work">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Recent rooms we have lit.</h2>
+        <p>A restaurant that needed to feel full on a Tuesday, a gallery where nothing could glare, and two homes that finally stopped looking like offices after sunset.</p>
+      </div>
+      <div class="work-grid" id="workGrid"></div>
+    </div>
+  </section>
+
+  <section class="sec" id="process" style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>From first visit to the final switch.</h2>
+        <p>Four stages, usually six to ten weeks for a home. We stay on the project until every scene is programmed and you know how to use it.</p>
+      </div>
+      <ol class="steps">
+        <li><div class="step-n">1</div><h3>Night survey</h3><p>We visit after dark, measure the light you have now and ask how each room is actually used.</p></li>
+        <li><div class="step-n">2</div><h3>On-site mock-up</h3><p>Temporary fittings go up so you see the effect in your own space before anything is bought.</p></li>
+        <li><div class="step-n">3</div><h3>Specification</h3><p>A drawing set and fitting schedule your electrician can follow, priced in three budgets.</p></li>
+        <li><div class="step-n">4</div><h3>Commissioning</h3><p>We aim every fitting, set the scenes and hand over a one-page guide to your controls.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="quote">
+    <div class="wrap">
+      <blockquote>“Guests now ask who designed the room. Nothing in it changed except the light.”</blockquote>
+      <cite>Meera Kapoor, owner of Saffron &amp; Salt, Indore</cite>
+    </div>
+  </section>
+
+  <section class="sec contact" id="contact">
+    <div class="wrap contact-grid">
+      <div>
+        <h2>Tell us about the room that bothers you.</h2>
+        <p class="lede">Send a few details and we will reply within two working days with a time for a night survey. The first visit is free within the city.</p>
+        <dl>
+          <div><dt>Studio</dt><dd>14 Old Palasia, Indore</dd></div>
+          <div><dt>Email</dt><dd>hello@haldenlight.studio</dd></div>
+          <div><dt>Hours</dt><dd>Mon–Sat, 11 am to 8 pm</dd></div>
+        </dl>
+      </div>
+      <form id="form" novalidate>
+        <div class="formbody">
+          <div class="two">
+            <div class="field"><label for="name">Your name</label><input id="name" name="name" autocomplete="name" required><span class="err"></span></div>
+            <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" required><span class="err"></span></div>
+          </div>
+          <div class="field" style="margin-top:18px"><label id="spaceLbl">Type of space</label>
+            <div class="space-pick" role="group" aria-labelledby="spaceLbl">
+              <button type="button" class="chip" aria-pressed="true">Home</button>
+              <button type="button" class="chip" aria-pressed="false">Restaurant or café</button>
+              <button type="button" class="chip" aria-pressed="false">Gallery or retail</button>
+              <button type="button" class="chip" aria-pressed="false">Office</button>
+            </div>
+          </div>
+          <div class="field" style="margin-top:18px"><label for="msg">What feels wrong about it now?</label><textarea id="msg" name="msg" required placeholder="The living room feels flat and harsh once the sun goes down…"></textarea><span class="err"></span></div>
+          <button class="btn btn-light" type="submit" style="justify-self:start;margin-top:6px">Request a night survey</button>
+        </div>
+        <div class="sent" id="sent" role="status" aria-live="polite">
+          <div class="orb"></div>
+          <h3>Request sent</h3>
+          <p id="sentMsg">We will email you within two working days to book your night survey.</p>
+        </div>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Halden Light Studio</span>
+    <span>A concept site designed and built by Naved Khan</span>
+  </div>
+</footer>
+
+<dialog id="dlg" aria-labelledby="dlgTitle">
+  <button class="close" id="dlgClose" aria-label="Close project">×</button>
+  <div class="dlg-art" id="dlgArt"></div>
+  <div class="dlg-body">
+    <div><h3 id="dlgTitle"></h3><p id="dlgText"></p></div>
+    <ul class="facts" id="dlgFacts"></ul>
+  </div>
+</dialog>
+
+<script>
+(() => {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $ = s => document.querySelector(s);
+
+  /* NAV */
+  const nav = $('#nav'), menuBtn = $('#menuBtn');
+  addEventListener('scroll', () => nav.classList.toggle('solid', scrollY > 40), {passive:true});
+  menuBtn.addEventListener('click', () => {
+    const open = nav.classList.toggle('open');
+    menuBtn.setAttribute('aria-expanded', open);
+  });
+  document.querySelectorAll('#navlinks a').forEach(a => a.addEventListener('click', () => {
+    nav.classList.remove('open'); menuBtn.setAttribute('aria-expanded', false);
+  }));
+
+  /* HERO LIGHT */
+  const hero = $('#hero'), hint = $('#hint');
+  const isTouch = matchMedia('(hover: none)').matches;
+  let tx = innerWidth * .62, ty = innerHeight * .4, x = tx, y = ty, moved = false;
+  const setR = () => hero.style.setProperty('--r', Math.max(220, Math.min(innerWidth, innerHeight) * .42) + 'px');
+  setR(); addEventListener('resize', setR);
+  if (isTouch) hero.classList.add('touch');
+  const point = (cx, cy) => {
+    const r = hero.getBoundingClientRect();
+    tx = cx - r.left; ty = cy - r.top;
+    if (!moved) { moved = true; hint.classList.add('gone'); }
+  };
+  hero.addEventListener('pointermove', e => point(e.clientX, e.clientY));
+  hero.addEventListener('touchmove', e => point(e.touches[0].clientX, e.touches[0].clientY), {passive:true});
+  let t0 = performance.now();
+  const loop = now => {
+    if (!moved && !reduce) {
+      const t = (now - t0) / 1000;
+      tx = innerWidth * (.55 + Math.sin(t * .5) * .2);
+      ty = innerHeight * (.42 + Math.sin(t * .8) * .12);
+    }
+    x += (tx - x) * (reduce ? 1 : .12); y += (ty - y) * (reduce ? 1 : .12);
+    hero.style.setProperty('--lx', x + 'px'); hero.style.setProperty('--ly', y + 'px');
+    requestAnimationFrame(loop);
+  };
+  requestAnimationFrame(loop);
+
+  /* SCENE DIMMER */
+  const T = $('#time'), L = $('#lux');
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const mix = (c1, c2, t) => {
+    const p = c => [1,3,5].map(i => parseInt(c.slice(i, i+2), 16));
+    const a = p(c1), b = p(c2);
+    return '#' + a.map((v, i) => Math.round(lerp(v, b[i], t)).toString(16).padStart(2,'0')).join('');
+  };
+  const stops = [ // time position -> look
+    {t:0,   label:'7:00 pm', k:3300, sky:['#E9906A','#F6C98F'], note:'Golden hour. Daylight is still doing most of the work, so the lamps stay low and warm.'},
+    {t:.3,  label:'8:15 pm', k:3000, sky:['#6A5C8E','#D88F6E'], note:'Blue hour. The window cools down, so warm wall light keeps the room from feeling grey.'},
+    {t:.55, label:'9:30 pm', k:2700, sky:['#252D50','#4B4F7A'], note:'Dinner. The pendant pools light on the table and the artwork gets a gentle accent.'},
+    {t:.8,  label:'10:45 pm',k:2400, sky:['#121733','#1F2547'], note:'Winding down. Overhead light is off; only the floor lamp and a low glow remain.'},
+    {t:1,   label:'midnight',k:2000, sky:['#090B1A','#11142A'], note:'Last one up. Just enough amber light to find your way, without waking anyone.'}
+  ];
+  const kToHex = k => mix('#FFB45A', '#FFE7C4', Math.min(1, Math.max(0, (k - 2000) / 1300)));
+  function render() {
+    const t = T.value / 100, l = L.value / 100;
+    let i = 0; while (i < stops.length - 2 && t > stops[i+1].t) i++;
+    const a = stops[i], b = stops[i+1], f = (t - a.t) / (b.t - a.t);
+    const k = Math.round(lerp(a.k, b.k, f) / 50) * 50;
+    const near = f < .5 ? a : b;
+    const light = kToHex(k);
+    $('#sky1').setAttribute('stop-color', mix(a.sky[0], b.sky[0], f));
+    $('#sky2').setAttribute('stop-color', mix(a.sky[1], b.sky[1], f));
+    $('#sPoolC').setAttribute('stop-color', light);
+    $('#sWashC').setAttribute('stop-color', light);
+    $('#sPoolC').setAttribute('stop-opacity', (.25 + l * .7).toFixed(2));
+    $('#sWashC').setAttribute('stop-opacity', ((1 - t) * .35 + l * .35).toFixed(2));
+    $('#sLampShade').setAttribute('fill', mix('#5a5040', light, .3 + l * .7));
+    const daylight = Math.max(0, 1 - t * 2.2);
+    $('#sDark').setAttribute('opacity', Math.min(.86, Math.max(0, (1 - l) * .75 + t * .3 - daylight * .3)).toFixed(2));
+    $('#sWall').setAttribute('fill', mix('#3A332E', mix('#4A3E33', light, .25), l));
+    $('#sLampGlow').setAttribute('opacity', (Math.min(1, t * 1.6) * (.35 + l * .65)).toFixed(2));
+    $('#timeOut').textContent = near.label;
+    $('#sceneNote').textContent = near.note;
+    $('#kOut').textContent = k + ' K';
+    $('#luxOut').textContent = Math.round(l * 100) + '%';
+    document.querySelectorAll('#presets .chip').forEach(c =>
+      c.setAttribute('aria-pressed', +c.dataset.t === +T.value && +c.dataset.l === +L.value));
+  }
+  T.addEventListener('input', render); L.addEventListener('input', render);
+  document.querySelectorAll('#presets .chip').forEach(c => c.addEventListener('click', () => {
+    const t1 = +c.dataset.t, l1 = +c.dataset.l, t0v = +T.value, l0v = +L.value, start = performance.now(), dur = reduce ? 1 : 700;
+    const step = now => {
+      const p = Math.min(1, (now - start) / dur), e = 1 - Math.pow(1 - p, 3);
+      T.value = Math.round(lerp(t0v, t1, e)); L.value = Math.round(lerp(l0v, l1, e)); render();
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }));
+  render();
+
+  /* PROJECTS: each has its own drawn scene */
+  const art = {
+    restaurant: `<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice"><defs><radialGradient id="pa1" cx=".5" cy=".1" r=".9"><stop offset="0" stop-color="#FFC874" stop-opacity=".7"/><stop offset="1" stop-color="#FFC874" stop-opacity="0"/></radialGradient></defs><rect width="400" height="300" fill="#2B1810"/><rect width="400" height="200" fill="#5A2E1C"/><g fill="#7A3E24">${[0,1,2,3,4,5,6,7].map(i=>`<rect x="${i*52+6}" y="20" width="40" height="160" rx="20"/>`).join('')}</g><rect width="400" height="300" fill="url(#pa1)"/>${[80,200,320].map(cx=>`<line x1="${cx}" y1="0" x2="${cx}" y2="110" stroke="#1a0e08" stroke-width="2"/><ellipse cx="${cx}" cy="116" rx="22" ry="12" fill="#FFD48A"/><ellipse cx="${cx}" cy="230" rx="70" ry="16" fill="#FFC874" opacity=".35"/><rect x="${cx-48}" y="222" width="96" height="10" rx="5" fill="#1a0e08"/>`).join('')}</svg>`,
+    gallery: `<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="pa2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F2F0EA"/><stop offset="1" stop-color="#C9C6BE"/></linearGradient><radialGradient id="pa2b" cx=".5" cy="0" r=".9"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs><rect width="400" height="300" fill="url(#pa2)"/><rect y="235" width="400" height="65" fill="#8F8A80"/>${[60,175,290].map((x,i)=>`<ellipse cx="${x+25}" cy="110" rx="70" ry="95" fill="url(#pa2b)"/><rect x="${x}" y="${70+i*6}" width="50" height="${80-i*8}" fill="${['#2F3B5C','#B4553A','#1F1F22'][i]}"/>`).join('')}<rect y="0" width="400" height="10" fill="#2a2a2a"/></svg>`,
+    loft: `<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice"><defs><radialGradient id="pa3" cx=".7" cy=".7" r=".6"><stop offset="0" stop-color="#FFB547" stop-opacity=".55"/><stop offset="1" stop-color="#FFB547" stop-opacity="0"/></radialGradient></defs><rect width="400" height="300" fill="#1C1E2A"/>${[0,1,2,3].map(i=>`<rect x="${30+i*48}" y="40" width="40" height="150" fill="#2C3558"/>`).join('')}<g stroke="#11131c" stroke-width="3">${[0,1,2,3].map(i=>`<line x1="${30+i*48}" y1="115" x2="${70+i*48}" y2="115"/>`).join('')}</g><rect y="230" width="400" height="70" fill="#2A2420"/><rect width="400" height="300" fill="url(#pa3)"/><rect x="240" y="190" width="140" height="50" rx="14" fill="#6D5A4A"/><line x1="350" y1="235" x2="350" y2="120" stroke="#0e0f15" stroke-width="3"/><path d="M332 122 l18 -26 l18 26Z" fill="#FFE0A8"/></svg>`,
+    villa: `<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="pa4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0F1530"/><stop offset="1" stop-color="#3B3560"/></linearGradient><linearGradient id="pa4w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3FA7B8"/><stop offset="1" stop-color="#145566"/></linearGradient></defs><rect width="400" height="300" fill="url(#pa4)"/><g fill="#E8E0CC"><circle cx="60" cy="40" r="1.6"/><circle cx="140" cy="70" r="1.2"/><circle cx="330" cy="30" r="1.6"/></g><rect x="70" y="100" width="260" height="110" fill="#D9CCB0"/><rect x="95" y="125" width="70" height="85" fill="#FFCB78"/><rect x="185" y="125" width="70" height="85" fill="#FFCB78"/><rect x="275" y="125" width="40" height="85" fill="#FFB547"/><polygon points="60,100 200,60 340,100" fill="#8C6B4E"/><rect y="215" width="400" height="85" fill="url(#pa4w)"/><g fill="#FFD48A" opacity=".55"><rect x="95" y="225" width="70" height="5"/><rect x="185" y="238" width="70" height="4"/><rect x="275" y="250" width="40" height="3"/></g></svg>`
+  };
+  const projects = [
+    {key:'restaurant', title:'Saffron & Salt', type:'Restaurant, 70 covers', where:'Indore', text:'The old room was lit evenly from the ceiling, so it felt empty unless every table was taken. We moved the light down onto the tables and into the arched alcoves. Now each table sits in its own warm pool and the room feels busy even at half capacity.', facts:[['Size','2,400 sq ft'],['Colour temperature','2200–2700 K'],['Scenes','Lunch, dinner, late bar'],['Timeline','7 weeks']]},
+    {key:'gallery', title:'Ivory Hall Gallery', type:'Contemporary art', where:'Bhopal', text:'Artists complained that glare hid the texture of their canvases. We replaced fixed track spots with narrow-beam, high-colour-accuracy fittings that are re-aimed for every exhibition, and added a dimmable wash so the walls never compete with the work.', facts:[['Size','3,100 sq ft'],['Colour accuracy','CRI 97+'],['Fittings','48 adjustable spots'],['Timeline','5 weeks']]},
+    {key:'loft', title:'The Mehta loft', type:'Apartment', where:'Pune', text:'A tall apartment with big windows that went cold and grey the moment the sun set. Hidden strip lighting now warms the ceiling, and a single floor lamp anchors the sofa corner for evenings.', facts:[['Size','1,800 sq ft'],['Colour temperature','2700 K'],['Control','Phone and wall keypads'],['Timeline','6 weeks']]},
+    {key:'villa', title:'Lakeside villa', type:'Private home', where:'Udaipur', text:'The brief was simple: the house should glow from across the lake without lighting up the sky. We used low, shielded garden lights and let warm interiors do most of the work through the windows.', facts:[['Size','6,500 sq ft + garden'],['Night-sky friendly','Fully shielded fittings'],['Scenes','9 indoor, 4 garden'],['Timeline','12 weeks']]}
+  ];
+  const grid = $('#workGrid');
+  projects.forEach((p, i) => {
+    const b = document.createElement('button');
+    b.className = 'proj'; b.type = 'button';
+    b.setAttribute('aria-label', `Open project: ${p.title}`);
+    b.innerHTML = `<div class="proj-art">${art[p.key]}</div><div class="proj-meta"><div><h3>${p.title}</h3><p>${p.type}</p></div><span class="where">${p.where}</span></div>`;
+    b.addEventListener('click', () => openProj(i));
+    grid.appendChild(b);
+  });
+  const dlg = $('#dlg');
+  function openProj(i) {
+    const p = projects[i];
+    $('#dlgArt').innerHTML = art[p.key];
+    $('#dlgTitle').textContent = p.title;
+    $('#dlgText').textContent = p.text;
+    $('#dlgFacts').innerHTML = [['Type', p.type], ['Location', p.where], ...p.facts].map(([a, b]) => `<li><span>${a}</span><span>${b}</span></li>`).join('');
+    dlg.showModal();
+  }
+  $('#dlgClose').addEventListener('click', () => dlg.close());
+  dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+
+  /* FORM */
+  document.querySelectorAll('.space-pick .chip').forEach(c => c.addEventListener('click', () => {
+    document.querySelectorAll('.space-pick .chip').forEach(o => o.setAttribute('aria-pressed', o === c));
+  }));
+  const form = $('#form');
+  const rules = {
+    name: v => v.trim() ? '' : 'Enter your name so we know who to reply to.',
+    email: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? '' : 'Enter an email address like name@example.com.',
+    msg: v => v.trim().length >= 10 ? '' : 'Add a sentence or two about the room.'
+  };
+  const check = el => {
+    const msg = rules[el.name](el.value), f = el.closest('.field');
+    f.classList.toggle('bad', !!msg); f.querySelector('.err').textContent = msg;
+    el.setAttribute('aria-invalid', !!msg);
+    return !msg;
+  };
+  Object.keys(rules).forEach(n => form[n].addEventListener('blur', () => check(form[n])));
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const els = Object.keys(rules).map(n => form[n]);
+    const ok = els.map(check).every(Boolean);
+    if (!ok) { els.find(el => el.getAttribute('aria-invalid') === 'true').focus(); return; }
+    const first = form.name.value.trim().split(' ')[0];
+    $('#sentMsg').textContent = `Thanks, ${first}. We will email ${form.email.value.trim()} within two working days to book your night survey.`;
+    form.querySelector('.formbody').style.display = 'none';
+    $('#sent').style.display = 'block';
+  });
+})();
+</script>
+</body>
+</html>
