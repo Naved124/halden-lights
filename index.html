@@ -50,8 +50,10 @@ img,svg{display:block}
 /* HERO: the room you light with your cursor */
 .hero{position:relative;height:100svh;min-height:640px;overflow:hidden;cursor:none;isolation:isolate}
 .hero.touch{cursor:auto}
-.room{position:absolute;inset:0;width:100%;height:100%}
-.room-dark{filter:brightness(.13) saturate(.4)}
+.room{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 60%}
+.room-dark{filter:brightness(.14) saturate(.5)}
+.room-lit{filter:brightness(1.7) contrast(1.08) saturate(1.15)}
+.hero-shade{position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(180deg,rgba(23,22,28,.55) 0%,transparent 22%,transparent 50%,rgba(23,22,28,.85) 100%),linear-gradient(90deg,rgba(23,22,28,.6) 0%,transparent 55%)}
 .room-lit{-webkit-mask:radial-gradient(circle var(--r,300px) at var(--lx) var(--ly),#000 0%,rgba(0,0,0,.85) 35%,rgba(0,0,0,.35) 65%,transparent 100%);mask:radial-gradient(circle var(--r,300px) at var(--lx) var(--ly),#000 0%,rgba(0,0,0,.85) 35%,rgba(0,0,0,.35) 65%,transparent 100%)}
 .glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle 420px at var(--lx) var(--ly),rgba(255,181,71,.16),transparent 70%);mix-blend-mode:screen}
 .bulb{position:absolute;left:var(--lx);top:var(--ly);width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#FFF3D6;box-shadow:0 0 12px 4px #FFD58A,0 0 60px 20px rgba(255,181,71,.45);pointer-events:none;z-index:3;transition:opacity .3s}
@@ -108,8 +110,8 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
 .proj:nth-child(3){grid-column:span 5}
 .proj:nth-child(4){grid-column:span 7;margin-top:60px}
 .proj-art{position:relative;aspect-ratio:4/3;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#0e0d12}
-.proj-art svg{width:100%;height:100%;transition:transform 1.2s cubic-bezier(.2,.7,.2,1),filter .6s}
-.proj:hover .proj-art svg,.proj:focus-visible .proj-art svg{transform:scale(1.04);filter:brightness(1.15)}
+.proj-art img{width:100%;height:100%;object-fit:cover;filter:brightness(.85);transition:transform 1.2s cubic-bezier(.2,.7,.2,1),filter .6s}
+.proj:hover .proj-art img,.proj:focus-visible .proj-art img{transform:scale(1.04);filter:brightness(1.05)}
 .proj-meta{display:flex;justify-content:space-between;gap:16px;margin-top:16px}
 .proj-meta h3{font-family:var(--serif);font-weight:400;font-size:1.5rem;line-height:1.2}
 .proj-meta p{color:var(--stone-dim);font-size:.93rem}
@@ -121,7 +123,7 @@ dialog::backdrop{background:rgba(10,9,13,.82);backdrop-filter:blur(6px)}
 dialog[open]{animation:pop .35s cubic-bezier(.2,.7,.2,1)}
 @keyframes pop{from{opacity:0;transform:translateY(16px) scale(.98)}}
 .dlg-art{aspect-ratio:16/8;background:#0e0d12}
-.dlg-art svg{width:100%;height:100%}
+.dlg-art img{width:100%;height:100%;object-fit:cover}
 .dlg-body{padding:30px 32px 34px;display:grid;grid-template-columns:1.3fr 1fr;gap:32px}
 .dlg-body h3{font-family:var(--serif);font-weight:400;font-size:2rem;line-height:1.1;margin-bottom:12px}
 .dlg-body p{color:var(--stone-dim)}
@@ -201,56 +203,6 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
 </head>
 <body>
 
-<!-- Reusable room drawing, rendered twice in the hero (dark + lit) -->
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <defs>
-    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E9C8A0"/><stop offset="1" stop-color="#B98C63"/></linearGradient>
-    <linearGradient id="wallR" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#C79C72"/><stop offset="1" stop-color="#8E6748"/></linearGradient>
-    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7A5539"/><stop offset="1" stop-color="#3E2A1C"/></linearGradient>
-    <linearGradient id="arch" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2F3C63"/><stop offset="1" stop-color="#1B2240"/></linearGradient>
-    <radialGradient id="pend" cx=".5" cy=".3" r=".7"><stop offset="0" stop-color="#FFF4D8"/><stop offset=".4" stop-color="#FFC56B"/><stop offset="1" stop-color="#C2671F"/></radialGradient>
-    <radialGradient id="pool" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFD48A" stop-opacity=".75"/><stop offset="1" stop-color="#FFD48A" stop-opacity="0"/></radialGradient>
-    <linearGradient id="sofa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5C6E5A"/><stop offset="1" stop-color="#3A4838"/></linearGradient>
-    <symbol id="roomArt" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
-      <rect width="1600" height="1000" fill="url(#wall)"/>
-      <polygon points="1220,0 1600,0 1600,1000 1220,760" fill="url(#wallR)"/>
-      <polygon points="0,760 1220,760 1600,1000 0,1000" fill="url(#floor)"/>
-      <g stroke="#2E1E13" stroke-opacity=".25" stroke-width="2">
-        <line x1="0" y1="820" x2="1290" y2="820"/><line x1="0" y1="890" x2="1400" y2="890"/><line x1="0" y1="960" x2="1530" y2="960"/>
-      </g>
-      <!-- arched window with night sky -->
-      <path d="M180 760 V330 a170 170 0 0 1 340 0 V760 Z" fill="url(#arch)"/>
-      <path d="M180 760 V330 a170 170 0 0 1 340 0 V760" fill="none" stroke="#6E4C33" stroke-width="14"/>
-      <line x1="350" y1="160" x2="350" y2="760" stroke="#6E4C33" stroke-width="8"/>
-      <circle cx="430" cy="300" r="26" fill="#F3E6C3" opacity=".9"/>
-      <g fill="#F3E6C3" opacity=".8"><circle cx="250" cy="260" r="2.5"/><circle cx="300" cy="410" r="2"/><circle cx="460" cy="460" r="2.5"/><circle cx="230" cy="520" r="2"/></g>
-      <!-- shelf with ceramics -->
-      <rect x="1290" y="330" width="250" height="12" fill="#5E402A" transform="skewY(14)"/>
-      <ellipse cx="1340" cy="640" rx="26" ry="42" fill="#D9CBB2"/><ellipse cx="1420" cy="650" rx="20" ry="58" fill="#3F4F6C"/>
-      <!-- artwork -->
-      <rect x="760" y="230" width="300" height="220" rx="4" fill="#2A2621"/>
-      <rect x="776" y="246" width="268" height="188" fill="#C9603A"/>
-      <circle cx="920" cy="340" r="62" fill="#F1D9A8"/>
-      <rect x="776" y="380" width="268" height="54" fill="#3F4F6C"/>
-      <!-- sofa -->
-      <rect x="640" y="600" width="560" height="170" rx="36" fill="url(#sofa)"/>
-      <rect x="610" y="640" width="70" height="150" rx="26" fill="#4A5A48"/>
-      <rect x="1160" y="640" width="70" height="150" rx="26" fill="#4A5A48"/>
-      <rect x="690" y="560" width="210" height="110" rx="30" fill="#6B7D68"/><rect x="930" y="560" width="210" height="110" rx="30" fill="#6B7D68"/>
-      <!-- plant -->
-      <path d="M540 770 h90 l-12 -110 h-66 Z" fill="#A9693F"/>
-      <g fill="#3D5A3A"><ellipse cx="560" cy="600" rx="22" ry="70" transform="rotate(-25 560 600)"/><ellipse cx="600" cy="580" rx="20" ry="80" transform="rotate(15 600 580)"/><ellipse cx="585" cy="540" rx="16" ry="70"/></g>
-      <!-- pendant -->
-      <line x1="920" y1="0" x2="920" y2="120" stroke="#2A2621" stroke-width="3"/>
-      <path d="M860 150 a60 34 0 0 1 120 0 Z" fill="#2A2621"/>
-      <ellipse cx="920" cy="152" rx="50" ry="10" fill="url(#pend)"/>
-      <ellipse cx="920" cy="770" rx="360" ry="70" fill="url(#pool)"/>
-      <!-- floor lamp -->
-      <line x1="1470" y1="980" x2="1470" y2="520" stroke="#2A2621" stroke-width="7"/>
-      <path d="M1420 520 l50 -90 l50 90 Z" fill="#E8D7B6"/>
-    </symbol>
-  </defs>
-</svg>
 
 <header class="nav" id="nav">
   <div class="wrap">
@@ -268,8 +220,9 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
 
 <main id="top">
   <section class="hero" id="hero" aria-label="Introduction">
-    <svg class="room room-dark" aria-hidden="true"><use href="#roomArt"/></svg>
-    <svg class="room room-lit" aria-hidden="true"><use href="#roomArt"/></svg>
+    <img class="room room-dark" src="images/hero-living-room.jpg" alt="" aria-hidden="true">
+    <img class="room room-lit" src="images/hero-living-room.jpg" alt="" aria-hidden="true">
+    <div class="hero-shade" aria-hidden="true"></div>
     <div class="glow" aria-hidden="true"></div>
     <div class="bulb" aria-hidden="true"></div>
     <p class="hint" id="hint">Move your light around the room</p>
@@ -528,12 +481,13 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
   render();
 
   /* PROJECTS: each has its own drawn scene */
-  const art = {
-    restaurant: `<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice"><defs><radialGradient id="pa1" cx=".5" cy=".1" r=".9"><stop offset="0" stop-color="#FFC874" stop-opacity=".7"/><stop offset="1" stop-color="#FFC874" stop-opacity="0"/></radialGradient></defs><rect width="400" height="300" fill="#2B1810"/><rect width="400" height="200" fill="#5A2E1C"/><g fill="#7A3E24">${[0,1,2,3,4,5,6,7].map(i=>`<rect x="${i*52+6}" y="20" width="40" height="160" rx="20"/>`).join('')}</g><rect width="400" height="300" fill="url(#pa1)"/>${[80,200,320].map(cx=>`<line x1="${cx}" y1="0" x2="${cx}" y2="110" stroke="#1a0e08" stroke-width="2"/><ellipse cx="${cx}" cy="116" rx="22" ry="12" fill="#FFD48A"/><ellipse cx="${cx}" cy="230" rx="70" ry="16" fill="#FFC874" opacity=".35"/><rect x="${cx-48}" y="222" width="96" height="10" rx="5" fill="#1a0e08"/>`).join('')}</svg>`,
-    gallery: `<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="pa2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F2F0EA"/><stop offset="1" stop-color="#C9C6BE"/></linearGradient><radialGradient id="pa2b" cx=".5" cy="0" r=".9"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs><rect width="400" height="300" fill="url(#pa2)"/><rect y="235" width="400" height="65" fill="#8F8A80"/>${[60,175,290].map((x,i)=>`<ellipse cx="${x+25}" cy="110" rx="70" ry="95" fill="url(#pa2b)"/><rect x="${x}" y="${70+i*6}" width="50" height="${80-i*8}" fill="${['#2F3B5C','#B4553A','#1F1F22'][i]}"/>`).join('')}<rect y="0" width="400" height="10" fill="#2a2a2a"/></svg>`,
-    loft: `<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice"><defs><radialGradient id="pa3" cx=".7" cy=".7" r=".6"><stop offset="0" stop-color="#FFB547" stop-opacity=".55"/><stop offset="1" stop-color="#FFB547" stop-opacity="0"/></radialGradient></defs><rect width="400" height="300" fill="#1C1E2A"/>${[0,1,2,3].map(i=>`<rect x="${30+i*48}" y="40" width="40" height="150" fill="#2C3558"/>`).join('')}<g stroke="#11131c" stroke-width="3">${[0,1,2,3].map(i=>`<line x1="${30+i*48}" y1="115" x2="${70+i*48}" y2="115"/>`).join('')}</g><rect y="230" width="400" height="70" fill="#2A2420"/><rect width="400" height="300" fill="url(#pa3)"/><rect x="240" y="190" width="140" height="50" rx="14" fill="#6D5A4A"/><line x1="350" y1="235" x2="350" y2="120" stroke="#0e0f15" stroke-width="3"/><path d="M332 122 l18 -26 l18 26Z" fill="#FFE0A8"/></svg>`,
-    villa: `<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="pa4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0F1530"/><stop offset="1" stop-color="#3B3560"/></linearGradient><linearGradient id="pa4w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3FA7B8"/><stop offset="1" stop-color="#145566"/></linearGradient></defs><rect width="400" height="300" fill="url(#pa4)"/><g fill="#E8E0CC"><circle cx="60" cy="40" r="1.6"/><circle cx="140" cy="70" r="1.2"/><circle cx="330" cy="30" r="1.6"/></g><rect x="70" y="100" width="260" height="110" fill="#D9CCB0"/><rect x="95" y="125" width="70" height="85" fill="#FFCB78"/><rect x="185" y="125" width="70" height="85" fill="#FFCB78"/><rect x="275" y="125" width="40" height="85" fill="#FFB547"/><polygon points="60,100 200,60 340,100" fill="#8C6B4E"/><rect y="215" width="400" height="85" fill="url(#pa4w)"/><g fill="#FFD48A" opacity=".55"><rect x="95" y="225" width="70" height="5"/><rect x="185" y="238" width="70" height="4"/><rect x="275" y="250" width="40" height="3"/></g></svg>`
+  const alts = {
+    restaurant: 'Restaurant dining room with brass pendant lamps and lit arched alcoves',
+    gallery: 'Gallery wall with three paintings, each in its own soft spotlight',
+    loft: 'Double-height loft at blue hour with warm hidden ceiling lighting',
+    villa: 'White villa glowing across a still lake under a starry sky'
   };
+  const art = k => `<img src="images/${k}.jpg" alt="${alts[k]}" loading="lazy" decoding="async">`;
   const projects = [
     {key:'restaurant', title:'Saffron & Salt', type:'Restaurant, 70 covers', where:'Indore', text:'The old room was lit evenly from the ceiling, so it felt empty unless every table was taken. We moved the light down onto the tables and into the arched alcoves. Now each table sits in its own warm pool and the room feels busy even at half capacity.', facts:[['Size','2,400 sq ft'],['Colour temperature','2200–2700 K'],['Scenes','Lunch, dinner, late bar'],['Timeline','7 weeks']]},
     {key:'gallery', title:'Ivory Hall Gallery', type:'Contemporary art', where:'Bhopal', text:'Artists complained that glare hid the texture of their canvases. We replaced fixed track spots with narrow-beam, high-colour-accuracy fittings that are re-aimed for every exhibition, and added a dimmable wash so the walls never compete with the work.', facts:[['Size','3,100 sq ft'],['Colour accuracy','CRI 97+'],['Fittings','48 adjustable spots'],['Timeline','5 weeks']]},
@@ -545,14 +499,14 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
     const b = document.createElement('button');
     b.className = 'proj'; b.type = 'button';
     b.setAttribute('aria-label', `Open project: ${p.title}`);
-    b.innerHTML = `<div class="proj-art">${art[p.key]}</div><div class="proj-meta"><div><h3>${p.title}</h3><p>${p.type}</p></div><span class="where">${p.where}</span></div>`;
+    b.innerHTML = `<div class="proj-art">${art(p.key)}</div><div class="proj-meta"><div><h3>${p.title}</h3><p>${p.type}</p></div><span class="where">${p.where}</span></div>`;
     b.addEventListener('click', () => openProj(i));
     grid.appendChild(b);
   });
   const dlg = $('#dlg');
   function openProj(i) {
     const p = projects[i];
-    $('#dlgArt').innerHTML = art[p.key];
+    $('#dlgArt').innerHTML = art(p.key);
     $('#dlgTitle').textContent = p.title;
     $('#dlgText').textContent = p.text;
     $('#dlgFacts').innerHTML = [['Type', p.type], ['Location', p.where], ...p.facts].map(([a, b]) => `<li><span>${a}</span><span>${b}</span></li>`).join('');
